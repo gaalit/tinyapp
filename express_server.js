@@ -55,6 +55,11 @@ app.post("/urls", (req, res) => {
   res.redirect(`urls/${shortURL}`) 
 });
 
+app.post("/urls/:shortURL/delete", (req, res) => {
+  delete urlDatabase[req.params.shortURL];
+  res.redirect("/urls");
+})
+
 //redirects user to the long Url associated to the short Url
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL 
@@ -62,6 +67,7 @@ app.get("/u/:shortURL", (req, res) => {
 
   res.redirect(longURL);
 });
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
