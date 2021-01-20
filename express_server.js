@@ -3,7 +3,7 @@ const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser')
-const { emailFinder } = require('./helpers');
+const { emailFinder, passwordMatching } = require('./helpers');
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser())
@@ -99,7 +99,7 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
-//login
+//LOGIN
 app.get("/login", (req, res) => {
   console.log(users);
   res.render("urls_login");
@@ -107,19 +107,31 @@ app.get("/login", (req, res) => {
 
 app.post("/login", (req, res) => {
   
-  console.log(req.body.email);
   if(emailFinder(req.body.email, users)) {
-      res.cookie('user_id', emailFinder(req.body.email, users))
-      }
-  res.redirect("/urls");
+
+    if(passwordMatching(req.body.password, users)) {
+      res.cookie('user_id', emailFinder(req.body.email, users));
+      res.redirect("/urls");;
+    }
+     else {
+      res.status(403)
+      res.send("Wrong password, status: 403");
+     }
+  }
+   else {
+    res.status(403)
+    res.send("Email not found, status: 403");
+   }
 });
 
+
+//LOGOUT
 app.post("/logout", (req, res) => {
   res.clearCookie('user_id')
   res.redirect("/urls");
 });
 
-// register
+// REGISTER
 app.get("/register", (req, res) => {
   res.render("urls_register");
 })
