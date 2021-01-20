@@ -3,6 +3,7 @@ const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser')
+const { emailFinder } = require('./helpers');
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser())
@@ -114,15 +115,29 @@ app.get("/register", (req, res) => {
   res.render("urls_register");
 })
 
+
 app.post("/register", (req, res) => {
 const id = generateRandomString();
 const email = req.body.email;
 const password = req.body.password;
 
-const newUser = {id, email, password};
-users[id] = newUser;
-res.cookie('user_id', id)
-res.redirect("/urls");
+if(id === "" || email === "") {
+ console.log("Hello");
+  res.status(400)
+  res.send("Empty field: status 400")
+}
+
+console.log(emailFinder(email, users))
+if(emailFinder(email, users)) {
+  console.log("hell0;")
+  res.status(404);
+  res.send("Email already exists: status 404")
+} else {
+  const newUser = {id, email, password};
+  users[id] = newUser;
+  res.cookie('user_id', id)
+  res.redirect("/urls");
+}
 })
 
 
