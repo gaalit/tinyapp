@@ -22,12 +22,12 @@ const urlDatabase = {
 
 // User database
 const users = { 
-  "userRandomID": {
+  "Jerry": {
     id: "Jerry", 
     email: "jerry@geemail.com", 
     password: "jerry1"
   },
- "userRandomID1": {
+ "Cosmo": {
     id: "Cosmo", 
     email: "cosmo@geemail.com", 
     password: "cosmo1"
@@ -55,7 +55,7 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls", (req, res) => {
   let user_id = req.cookies.user_id
   const templateVars = { urls: urlDatabase, user: users[user_id] };
-  
+  console.log(req.cookies);
   res.render("urls_index", templateVars);
 });
 
@@ -100,8 +100,17 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 //login
+app.get("/login", (req, res) => {
+  console.log(users);
+  res.render("urls_login");
+})
+
 app.post("/login", (req, res) => {
-  res.cookie('user_id', req.body.user_id)
+  
+  console.log(req.body.email);
+  if(emailFinder(req.body.email, users)) {
+      res.cookie('user_id', emailFinder(req.body.email, users))
+      }
   res.redirect("/urls");
 });
 
@@ -115,21 +124,16 @@ app.get("/register", (req, res) => {
   res.render("urls_register");
 })
 
-
 app.post("/register", (req, res) => {
 const id = generateRandomString();
 const email = req.body.email;
 const password = req.body.password;
 
 if(id === "" || email === "") {
- console.log("Hello");
   res.status(400)
   res.send("Empty field: status 400")
 }
-
-console.log(emailFinder(email, users))
 if(emailFinder(email, users)) {
-  console.log("hell0;")
   res.status(404);
   res.send("Email already exists: status 404")
 } else {
@@ -137,6 +141,7 @@ if(emailFinder(email, users)) {
   users[id] = newUser;
   res.cookie('user_id', id)
   res.redirect("/urls");
+  console.log(users)
 }
 })
 
