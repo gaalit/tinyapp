@@ -37,7 +37,7 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls", (req, res) => {
   let username = req.cookies.username
-  const templateVars = { urls: urlDatabase, username };
+  const templateVars = { urls: urlDatabase, username: username };
   
   res.render("urls_index", templateVars);
 });
@@ -47,7 +47,7 @@ app.get("/urls/:shortURL", (req, res) => {
   const longURL = urlDatabase[shortURL];
   let username = req.cookies.username
 
-  const templateVars = { shortURL: req.params.shortURL, longURL: longURL, username };
+  const templateVars = { shortURL: req.params.shortURL, longURL: longURL, username: username };
   res.render("urls_show", templateVars);
 });
 
@@ -89,6 +89,10 @@ app.post("/login", (req, res) => {
   res.redirect("/urls");
 });
 
+app.post("/logout", (req, res) => {
+  res.clearCookie('username')
+  res.redirect("/urls");
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
