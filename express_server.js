@@ -3,7 +3,7 @@ const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser')
-const { emailFinder, passwordMatching } = require('./helpers');
+const { emailFinder, passwordMatching, urlsForUser, urlBelongToUser  } = require('./helpers');
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser())
@@ -56,14 +56,15 @@ let user_id = req.cookies.user_id
 
 app.get("/urls", (req, res) => {
   let user_id = req.cookies.user_id
-  
-  const templateVars = { urls: urlDatabase, user: users[user_id] };
+
+
+  const templateVars = { urls: urlsForUser(user_id, urlDatabase), user: users[user_id] };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL
-  const longURL = urlDatabase[shortURL];
+  const longURL = urlDatabase[shortURL].longURL;
   let user_id = req.cookies.user_id
 
   const templateVars = { shortURL: req.params.shortURL, longURL: longURL, user: users[user_id] };
@@ -81,10 +82,20 @@ app.post("/urls", (req, res) => {
 //Edits shortURL and redirects
 app.post("/urls/:shortURL/edit", (req, res) => {
   const shortURL = req.params.shortURL;
+  let user_id = req.cookies.user_id
   const longURL = req.body.longURL;
-  urlDatabase[shortURL] = longURL;
+  console.log(longURL,shortURL);
+
+  console.log(urlBelongToUser(user_id, shortURL, urlDatabase))
+  if(urlBelongToUser(user_id, shortURL, urlDatabase)) {
+    urlDatabase[shortURL].longURL = longURL;
+    console.log(urlDatabase)
+    res.redirect("/urls");
+  }
+   else {
+    res.redirect("/login");
+   }  
   
-  res.redirect("/urls");
 })
 
 //deletes desired shortURL and redirects
