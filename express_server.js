@@ -3,6 +3,8 @@ const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser')
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
 const { emailFinder, passwordMatching, urlsForUser, urlBelongToUser  } = require('./helpers');
 
 app.use(bodyParser.urlencoded({extended: true}));
@@ -21,18 +23,7 @@ const urlDatabase = {
 };
 
 // User database
-const users = { 
-  "Jerry": {
-    id: "Jerry", 
-    email: "jerry@geemail.com", 
-    password: "jerry1"
-  },
- "Cosmo": {
-    id: "Cosmo", 
-    email: "cosmo@geemail.com", 
-    password: "cosmo1"
-  }
-}
+const users = {}
 // Homepage
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -130,11 +121,12 @@ app.get("/login", (req, res) => {
 })
 
 app.post("/login", (req, res) => {
-  
-  if(emailFinder(req.body.email, users)) {
+  let foundUser = emailFinder(req.body.email, users)
 
-    if(passwordMatching(req.body.password, users)) {
-      res.cookie('user_id', emailFinder(req.body.email, users));
+  if(foundUser) {
+
+    if(passwordMatching(req.body.password,users[foundUser])) {
+      res.cookie('user_id', foundUser);
       res.redirect("/urls");;
     }
      else {
@@ -173,8 +165,10 @@ if(id === "" || email === "") {
 if(emailFinder(email, users)) {
   res.status(404);
   res.send("Email already exists: status 404")
+
 } else {
-  const newUser = {id, email, password};
+  const salt = bcrypt.genSaltSync(saltRounds);
+  const newUser = {id, email, password: bcrypt.hashSync(password, salt)};
   users[id] = newUser;
   res.cookie('user_id', id)
   res.redirect("/urls");
