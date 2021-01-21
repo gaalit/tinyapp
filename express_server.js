@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser')
 const cookieSession = require('cookie-session')
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
-const { emailFinder, passwordMatching, urlsForUser, urlBelongToUser  } = require('./helpers');
+const { getUserByEmail, passwordMatching, urlsForUser, urlBelongToUser  } = require('./helpers');
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser())
@@ -130,7 +130,7 @@ app.get("/login", (req, res) => {
 })
 
 app.post("/login", (req, res) => {
-  let foundUser = emailFinder(req.body.email, users)
+  let foundUser = getUserByEmail(req.body.email, users)
 
   if(foundUser) {
 
@@ -170,7 +170,7 @@ if(id === "" || email === "") {
   res.status(400)
   res.send("Empty field: status 400")
 }
-if(emailFinder(email, users)) {
+if(getUserByEmail(email, users)) {
   res.status(404);
   res.send("Email already exists: status 404")
 
