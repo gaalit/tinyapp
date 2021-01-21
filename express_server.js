@@ -16,8 +16,8 @@ function generateRandomString() {
 
 // URL database
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userId: "Jerry"},
+  "9sm5xK": {longURL:"http://www.google.com", userId: "Cosmo"}
 };
 
 // User database
@@ -33,7 +33,7 @@ const users = {
     password: "cosmo1"
   }
 }
-
+// Homepage
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -46,16 +46,18 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+//Adding new URL to database
 app.get("/urls/new", (req, res) => {
-  let user_id = req.cookies.user_id
-  const templateVars = { urls: urlDatabase, user: users[user_id] };
+let user_id = req.cookies.user_id
+  const templateVars = { urls: urlDatabase, user: users[user_id]};
   res.render("urls_new",templateVars);
 });
 
+
 app.get("/urls", (req, res) => {
   let user_id = req.cookies.user_id
+  
   const templateVars = { urls: urlDatabase, user: users[user_id] };
-  console.log(req.cookies);
   res.render("urls_index", templateVars);
 });
 
@@ -72,7 +74,7 @@ app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
   const longURL = req.body.longURL;
   
-  urlDatabase[shortURL] = longURL;
+  urlDatabase[shortURL] = {longURL: longURL, userId: req.cookies.user_id}
   res.redirect(`urls/${shortURL}`) 
 });
 
@@ -128,6 +130,7 @@ app.post("/login", (req, res) => {
 //LOGOUT
 app.post("/logout", (req, res) => {
   res.clearCookie('user_id')
+  console.log("Post logout: ", req.cookies.user_id)
   res.redirect("/urls");
 });
 
@@ -156,9 +159,6 @@ if(emailFinder(email, users)) {
   console.log(users)
 }
 })
-
-
-
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
