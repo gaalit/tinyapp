@@ -1,14 +1,12 @@
 const bcrypt = require("bcrypt");
 
-
-
-let emailFinder = function(email, userDatabase) {
+//emailFinder
+let getUserByEmail = function(email, userDatabase) {
   for(let user in userDatabase) {
     if(email === userDatabase[user].email) {
       return userDatabase[user].id;
     }
     }
-    return false;
   }
 
   let passwordMatching = function(password, user) {  
@@ -21,7 +19,7 @@ let emailFinder = function(email, userDatabase) {
 //returns a seperate object with all of the short url's associated to a specific user
     const urlsForUser = function(id, urlDatabase) {
       const urltoDisplay = {};
-      for(let shortURL in urlDatabase) {      
+       for(let shortURL in urlDatabase) {      
         if(urlDatabase[shortURL].userId === id) {
           urltoDisplay[shortURL] = urlDatabase[shortURL];
         }
@@ -36,4 +34,4 @@ let emailFinder = function(email, userDatabase) {
      return false;
     }
 
-module.exports = {emailFinder, passwordMatching, urlsForUser, urlBelongToUser };
+module.exports = { getUserByEmail, passwordMatching, urlsForUser, urlBelongToUser };
