@@ -1,3 +1,6 @@
+const bcrypt = require("bcrypt");
+
+
 
 let emailFinder = function(email, userDatabase) {
   for(let user in userDatabase) {
@@ -8,11 +11,9 @@ let emailFinder = function(email, userDatabase) {
     return false;
   }
 
-  let passwordMatching = function(password, userDatabase) {
-    for(let user in userDatabase) {
-      if(password === userDatabase[user].password) {
+  let passwordMatching = function(password, user) {  
+      if(bcrypt.compareSync(password, user.password)) {
         return true
-      }
       }
       return false;
     }
