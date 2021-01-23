@@ -1,5 +1,11 @@
 const bcrypt = require("bcrypt");
 
+// Random string generator
+const generateRandomString = function() {
+  return Math.random().toString(36).substr(2, 6);
+};
+
+//Email validation
 let getUserByEmail = function(email, userDatabase) {
   for (let user in userDatabase) {
     if (email === userDatabase[user].email) {
@@ -8,6 +14,7 @@ let getUserByEmail = function(email, userDatabase) {
   }
 };
 
+//Password validation
 let passwordMatching = function(password, user) {
   if (bcrypt.compareSync(password, user.password)) {
     return true;
@@ -26,6 +33,7 @@ const urlsForUser = function(id, urlDatabase) {
   return urltoDisplay;
 };
 
+//Verifiying if url belongs to user
 const urlBelongToUser = function(id, shortURL, urlDatabase) {
   if (urlDatabase[shortURL].userId === id) {
     return true;
@@ -33,4 +41,4 @@ const urlBelongToUser = function(id, shortURL, urlDatabase) {
   return false;
 };
 
-module.exports = { getUserByEmail, passwordMatching, urlsForUser, urlBelongToUser };
+module.exports = { generateRandomString, getUserByEmail, passwordMatching, urlsForUser, urlBelongToUser };
