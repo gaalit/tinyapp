@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
-const { getUserByEmail, passwordMatching, urlsForUser, urlBelongToUser  } = require('./helpers');
+const { generateRandomString, getUserByEmail, passwordMatching, urlsForUser, urlBelongToUser  } = require('./helpers');
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
@@ -17,10 +17,6 @@ app.use(cookieSession({
 }));
 app.set("view engine", "ejs");
 
-// Random string generator
-let generateRandomString = function() {
-  return Math.random().toString(36).substr(2, 6);
-};
 
 // URL database
 const urlDatabase = {
@@ -61,8 +57,16 @@ app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL].longURL;
   let user_id = req.session.user_id;
-  const templateVars = { shortURL: req.params.shortURL, longURL: longURL, user: users[user_id] };
+
+  if (!user_id) {
+    res.redirect("/login");
+  } else if (urlBelongToUser(user_id, shortURL, urlDatabase)) {
+  const templateVars = { shortURL, longURL, user: users[user_id] };
   res.render("urls_show", templateVars);
+  } else {
+    res.status(401);
+    res.send("Not authorized to view this page, status: 401");
+  }
 });
 
 app.post("/urls", (req, res) => {
